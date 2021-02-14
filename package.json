@@ -1,11 +1,15 @@
 {
   "name": "gatsby-starter-leaflet",
-  "title": "RoadTracker",
-  "description": "RoadTracker Tracks map",
+  "title": "RoadTracker Leaflet",
+  "description": "RoadTracker Map",
   "version": "0.3.0",
+  "author": {
+    "name": "Sabirul Mostofa",
+    "email": "sabir_mostofa@yahoo.com",
+    "url": "https://github.com/sabirmostofa"
+  },
   "dependencies": {
     "gatsby": "^2.32.3",
-    "gatsby-cli": "^2.19.1",
     "gatsby-plugin-manifest": "^2.11.0",
     "gatsby-plugin-react-helmet": "^3.10.0",
     "gatsby-plugin-react-leaflet": "3.0.0",
@@ -76,5 +80,13 @@
       "yarn format",
       "yarn lint"
     ]
+  },
+  "homepage": "https://localhost",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/"
+  },
+  "bugs": {
+    "url": "https://github.com/"
   }
 }
