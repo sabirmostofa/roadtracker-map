@@ -9,6 +9,7 @@
     "url": "https://github.com/sabirmostofa"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "gatsby": "^2.32.3",
     "gatsby-plugin-manifest": "^2.11.0",
     "gatsby-plugin-react-helmet": "^3.10.0",
@@ -18,6 +19,8 @@
     "gatsby-source-filesystem": "^2.10.0",
     "gatsby-source-graphql": "^2.14.0",
     "leaflet": "^1.7.1",
+    "leaflet-geosearch": "^3.2.1",
+    "leaflet-search": "^2.9.9",
     "path": "^0.12.7",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",

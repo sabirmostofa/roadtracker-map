@@ -1,41 +1,63 @@
-import React, { useRef, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
-import L from 'leaflet';
-import { Marker, useMap } from 'react-leaflet';
-
-import { promiseToFlyTo, getCurrentLocation } from 'lib/map';
-
-import Layout from 'components/Layout';
-import Container from 'components/Container';
-import Map from 'components/Map';
-import Snippet from 'components/Snippet';
-
-import gatsby_astronaut from 'assets/images/gatsby-astronaut.jpg';
+import React, { useRef, useEffect } from "react";
+import { Helmet } from "react-helmet";
+import L from "leaflet";
+import { useMap } from "react-leaflet";
+import { promiseToFlyTo, getCurrentLocation } from "lib/map";
+import Layout from "components/Layout";
+import Map from "components/Map";
+import axios from "axios";
+import "leaflet-geosearch/dist/geosearch.css";
+import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 
 const LOCATION = {
-  lat: 38.9072,
-  lng: -77.0369,
+  lat: 52.4576,
+  lng: 13.5263,
 };
 const CENTER = [LOCATION.lat, LOCATION.lng];
 const DEFAULT_ZOOM = 2;
-const ZOOM = 10;
+const ZOOM = 15;
 
-const timeToZoom = 2000;
-const timeToOpenPopupAfterZoom = 4000;
-const timeToUpdatePopupAfterZoom = timeToOpenPopupAfterZoom + 3000;
+const timeToZoom = 1000;
 
-const popupContentHello = `<p>Hello 👋</p>`;
-const popupContentGatsby = `
-  <div class="popup-gatsby">
-    <div class="popup-gatsby-image">
-      <img class="gatsby-astronaut" src=${gatsby_astronaut} />
-    </div>
-    <div class="popup-gatsby-content">
-      <h1>Gatsby Leaflet Starter</h1>
-      <p>Welcome to your new Gatsby site. Now go build something great!</p>
-    </div>
-  </div>
-`;
+function LeafletgeoSearch() {
+  const map = useMap();
+  useEffect(() => {
+    const provider = new OpenStreetMapProvider();
+
+    const searchControl = new GeoSearchControl({
+      provider,
+    });
+
+    map.addControl(searchControl);
+
+    return () => map.removeControl(searchControl);
+  }, []);
+
+  return null;
+}
+
+function drawLines(tracks, map) {
+  console.log(tracks);
+  var pointList = [];
+  tracks.forEach((track) => {
+    pointList = [];
+    track.points.forEach((point) => {
+      pointList.push(new L.LatLng(point[1], point[0]));
+    });
+
+    var firstpolyline = new L.Polyline(pointList, {
+      color: "red",
+      weight: 3,
+      opacity: 0.5,
+      smoothFactor: 1,
+    });
+    firstpolyline.addTo(map);
+  });
+
+  map.flyTo(pointList[pointList.length - 1], 15, {
+    duration: 3,
+  });
+}
 
 /**
  * MapEffect
@@ -46,32 +68,42 @@ const MapEffect = ({ markerRef }) => {
   const map = useMap();
 
   useEffect(() => {
-    if ( !markerRef.current || !map ) return;
+    axios({
+      url: "https://quiet-island-79354.herokuapp.com/graphql",
+      method: "post",
+      data: {
+        query: `
+        query Test{tracks {
+        points
+        }}  
+          `,
+      },
+    })
+      .then((result) => {
+        console.log(result.data.data.tracks);
+        drawLines(result.data.data.tracks, map);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
-    ( async function run() {
+    if (!map) return;
+
+    (async function run() {
       const popup = L.popup({
         maxWidth: 800,
       });
 
-      const location = await getCurrentLocation().catch(() => LOCATION );
-
+      //const location = await getCurrentLocation().catch(() => LOCATION);
+      const location = LOCATION;
       const { current: marker } = markerRef || {};
 
-      marker.setLatLng( location );
-      popup.setLatLng( location );
-      popup.setContent( popupContentHello );
-
-      setTimeout( async () => {
-        await promiseToFlyTo( map, {
+      setTimeout(async () => {
+        await promiseToFlyTo(map, {
           zoom: ZOOM,
           center: location,
         });
-
-        marker.bindPopup( popup );
-
-        setTimeout(() => marker.openPopup(), timeToOpenPopupAfterZoom );
-        setTimeout(() => marker.setPopupContent( popupContentGatsby ), timeToUpdatePopupAfterZoom );
-      }, timeToZoom );
+      }, timeToZoom);
     })();
   }, [map, markerRef]);
 
@@ -83,7 +115,7 @@ const IndexPage = () => {
 
   const mapSettings = {
     center: CENTER,
-    defaultBaseMap: 'OpenStreetMap',
+    defaultBaseMap: "OpenStreetMap",
     zoom: DEFAULT_ZOOM,
   };
 
@@ -94,16 +126,9 @@ const IndexPage = () => {
       </Helmet>
 
       <Map {...mapSettings}>
+        <LeafletgeoSearch />
         <MapEffect markerRef={markerRef} />
-        <Marker ref={markerRef} position={CENTER} />
       </Map>
-
-      <Container type="content" className="text-center home-start">
-        <h2>Still Getting Started?</h2>
-        <p>Run the following in your terminal!</p>
-        <Snippet>gatsby new [directory] https://github.com/colbyfayock/gatsby-starter-leaflet</Snippet>
-        <p className="note">Note: Gatsby CLI required globally for the above command</p>
-      </Container>
     </Layout>
   );
 };
