@@ -14,6 +14,7 @@ const siteMetadata = {
 module.exports = {
   siteMetadata,
   plugins: [
+    `gatsby-plugin-netlify-cms`,
     "gatsby-plugin-resolve-src",
     {
       resolve: "gatsby-plugin-sass",
