@@ -54,6 +54,19 @@ function drawLines(tracks, map) {
     firstpolyline.addTo(map);
   });
 
+  console.log("printing last element:");
+  console.log(pointList[pointList.length - 1]);
+
+  // get middle point of the last track and set an async event to fly to
+  const location = pointList[parseInt(pointList.length / 2)];
+
+  setTimeout(async () => {
+    await promiseToFlyTo(map, {
+      zoom: ZOOM,
+      center: location,
+    });
+  }, 5000);
+
   map.flyTo(pointList[pointList.length - 1], 15, {
     duration: 3,
   });
